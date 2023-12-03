@@ -1,8 +1,8 @@
 package types
 
 import (
+	"github.com/cometbft/cometbft/crypto"
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 // AppAccount definition

@@ -3,7 +3,7 @@ package tx
 import (
 	"encoding/json"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/cometbft/cometbft/crypto"
 	"gitlab.com/thorchain/binance-sdk/types/msg"
 )
 

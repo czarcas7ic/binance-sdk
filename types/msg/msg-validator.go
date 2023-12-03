@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/cometbft/cometbft/crypto"
 	"gitlab.com/thorchain/binance-sdk/common/types"
 )
 
@@ -131,7 +131,7 @@ func NewMsgRemoveValidator(launcherAddr types.AccAddress, valAddr types.ValAddre
 	}
 }
 
-//nolint
+// nolint
 func (msg MsgRemoveValidator) Route() string { return MsgRoute }
 func (msg MsgRemoveValidator) Type() string  { return "remove_validator" }
 func (msg MsgRemoveValidator) GetSigners() []types.AccAddress {

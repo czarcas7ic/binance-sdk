@@ -6,12 +6,12 @@ import (
 
 	"github.com/pkg/errors"
 
+	libbytes "github.com/cometbft/cometbft/libs/bytes"
+	libservice "github.com/cometbft/cometbft/libs/service"
+	"github.com/cometbft/cometbft/rpc/client"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/cometbft/cometbft/types"
 	"github.com/tendermint/go-amino"
-	libbytes "github.com/tendermint/tendermint/libs/bytes"
-	libservice "github.com/tendermint/tendermint/libs/service"
-	"github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
 
 	ntypes "gitlab.com/thorchain/binance-sdk/common/types"
 	"gitlab.com/thorchain/binance-sdk/keys"

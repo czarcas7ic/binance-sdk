@@ -3,9 +3,9 @@ package ledger
 import (
 	ledgergo "github.com/binance-chain/ledger-cosmos-go"
 	"github.com/btcsuite/btcd/btcec"
+	"github.com/cometbft/cometbft/crypto"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 	tmbtcec "github.com/tendermint/btcd/btcec"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"gitlab.com/thorchain/binance-sdk/common/types"
 )
 

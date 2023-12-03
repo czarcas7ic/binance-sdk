@@ -12,9 +12,9 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/sha3"
 
-	"github.com/tendermint/tendermint/crypto/secp256k1"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/cometbft/cometbft/crypto"
 	"gitlab.com/thorchain/binance-sdk/common"
 	"gitlab.com/thorchain/binance-sdk/common/ledger"
 	"gitlab.com/thorchain/binance-sdk/common/types"

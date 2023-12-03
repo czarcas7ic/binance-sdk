@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	libbytes "github.com/tendermint/tendermint/libs/bytes"
+	libbytes "github.com/cometbft/cometbft/libs/bytes"
 )
 
 // Account definition

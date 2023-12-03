@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	libbytes "github.com/tendermint/tendermint/libs/bytes"
-	"github.com/tendermint/tendermint/types"
+	libbytes "github.com/cometbft/cometbft/libs/bytes"
+	"github.com/cometbft/cometbft/types"
 )
 
 const (

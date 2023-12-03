@@ -6,12 +6,12 @@ import (
 	"testing"
 	time2 "time"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/cometbft/cometbft/crypto"
 	"gitlab.com/thorchain/binance-sdk/client/rpc"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tendermint/tendermint/types/time"
+	"github.com/cometbft/cometbft/types/time"
 
 	sdk "gitlab.com/thorchain/binance-sdk/client"
 	"gitlab.com/thorchain/binance-sdk/client/transaction"

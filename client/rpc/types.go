@@ -1,9 +1,10 @@
 package rpc
 
 import (
-	"github.com/tendermint/tendermint/abci/types"
-	libbytes "github.com/tendermint/tendermint/libs/bytes"
-	abci "github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/abci/types"
+	libbytes "github.com/cometbft/cometbft/libs/bytes"
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+	abci "github.com/cometbft/cometbft/types"
 	"gitlab.com/thorchain/binance-sdk/types/tx"
 )
 
@@ -93,10 +94,10 @@ func (r *ABCIResponses) complement() {
 }
 
 type ResponseEndBlock struct {
-	ValidatorUpdates      []types.ValidatorUpdate `json:"validator_updates"`
-	ConsensusParamUpdates *types.ConsensusParams  `json:"consensus_param_updates,omitempty"`
-	Events                []types.Event           `json:"events,omitempty"`
-	Tags                  []types.EventAttribute  `json:"tags,omitempty"`
+	ValidatorUpdates      []types.ValidatorUpdate  `json:"validator_updates"`
+	ConsensusParamUpdates *tmtypes.ConsensusParams `json:"consensus_param_updates,omitempty"`
+	Events                []types.Event            `json:"events,omitempty"`
+	Tags                  []types.EventAttribute   `json:"tags,omitempty"`
 }
 
 func (r *ResponseEndBlock) complement() {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	core_types "github.com/tendermint/tendermint/rpc/core/types"
+	core_types "github.com/cometbft/cometbft/rpc/core/types"
 	"gitlab.com/thorchain/binance-sdk/common"
 	"gitlab.com/thorchain/binance-sdk/common/types"
 	"gitlab.com/thorchain/binance-sdk/keys"
