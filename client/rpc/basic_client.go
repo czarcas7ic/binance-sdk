@@ -1,11 +1,13 @@
 package rpc
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
 
+	"github.com/cometbft/cometbft/libs/bytes"
 	libbytes "github.com/cometbft/cometbft/libs/bytes"
 	libservice "github.com/cometbft/cometbft/libs/service"
 	"github.com/cometbft/cometbft/rpc/client"
@@ -21,15 +23,15 @@ var DefaultTimeout = 5 * time.Second
 
 type ABCIClient interface {
 	// Reading from abci app
-	ABCIInfo() (*ctypes.ResultABCIInfo, error)
-	ABCIQuery(path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error)
-	ABCIQueryWithOptions(path string, data libbytes.HexBytes,
+	ABCIInfo(context.Context) (*ctypes.ResultABCIInfo, error)
+	ABCIQuery(ctx context.Context, path string, data bytes.HexBytes) (*ctypes.ResultABCIQuery, error)
+	ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes,
 		opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error)
 
 	// Writing to abci app
-	BroadcastTxCommit(tx types.Tx) (*ResultBroadcastTxCommit, error)
-	BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error)
-	BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error)
+	BroadcastTxCommit(context.Context, types.Tx) (*ctypes.ResultBroadcastTxCommit, error)
+	BroadcastTxAsync(context.Context, types.Tx) (*ctypes.ResultBroadcastTx, error)
+	BroadcastTxSync(context.Context, types.Tx) (*ctypes.ResultBroadcastTx, error)
 }
 
 type SignClient interface {
