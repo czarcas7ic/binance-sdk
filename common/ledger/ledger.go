@@ -1,3 +1,4 @@
+//go:build cgo && ledger
 // +build cgo,ledger
 
 package ledger
