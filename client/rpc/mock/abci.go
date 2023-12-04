@@ -1,8 +1,6 @@
 package mock
 
 import (
-	"context"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 	libbytes "github.com/cometbft/cometbft/libs/bytes"
 	"github.com/cometbft/cometbft/proxy"
@@ -25,51 +23,45 @@ var (
 	_ rpc.ABCIClient = (*ABCIRecorder)(nil)
 )
 
-func (a ABCIApp) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error) {
-	resp, err := a.App.Info(ctx, proxy.RequestInfo)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ctypes.ResultABCIInfo{Response: *resp}, nil
+func (a ABCIApp) ABCIInfo() (*ctypes.ResultABCIInfo, error) {
+	return &ctypes.ResultABCIInfo{Response: a.App.Info(proxy.RequestInfo)}, nil
 }
 
-func (a ABCIApp) ABCIQuery(ctx context.Context, path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
-	return a.ABCIQueryWithOptions(ctx, path, data, client.DefaultABCIQueryOptions)
+func (a ABCIApp) ABCIQuery(path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
+	return a.ABCIQueryWithOptions(path, data, client.DefaultABCIQueryOptions)
 }
 
-func (a ABCIApp) ABCIQueryWithOptions(ctx context.Context, path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
-	q, err := a.App.Query(ctx, &abci.RequestQuery{
+func (a ABCIApp) ABCIQueryWithOptions(path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
+	q := a.App.Query(abci.RequestQuery{
 		Data:   data,
 		Path:   path,
 		Height: opts.Height,
 		Prove:  opts.Prove,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return &ctypes.ResultABCIQuery{Response: *q}, nil
+	return &ctypes.ResultABCIQuery{Response: q}, nil
 }
 
 // NOTE: Caller should call a.App.Commit() separately,
 // this function does not actually wait for a commit.
 // TODO: Make it wait for a commit and set res.Height appropriately.
-func (a ABCIApp) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTxCommit, error) {
-	return &ctypes.ResultBroadcastTxCommit{}, nil
+func (a ABCIApp) BroadcastTxCommit(tx types.Tx) (*rpc.ResultBroadcastTxCommit, error) {
+	return &rpc.ResultBroadcastTxCommit{}, nil
 }
 
-func (a ABCIApp) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	c, err := a.App.CheckTx(ctx, &abci.RequestCheckTx{Tx: tx})
-	if err != nil {
-		return nil, err
+func (a ABCIApp) BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+	c := a.App.CheckTx(abci.RequestCheckTx{Tx: tx})
+	// and this gets written in a background thread...
+	if !c.IsErr() {
+		go func() { a.App.DeliverTx(abci.RequestDeliverTx{Tx: tx}) }() // nolint: errcheck
 	}
 	return &ctypes.ResultBroadcastTx{Code: c.Code, Data: c.Data, Log: c.Log, Hash: tx.Hash()}, nil
 }
 
-func (a ABCIApp) BroadcastTxSync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	c, err := a.App.CheckTx(ctx, &abci.RequestCheckTx{Tx: tx})
-	if err != nil {
-		return nil, err
+func (a ABCIApp) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+	c := a.App.CheckTx(abci.RequestCheckTx{Tx: tx})
+	// and this gets written in a background thread...
+	if !c.IsErr() {
+		go func() { a.App.DeliverTx(abci.RequestDeliverTx{Tx: tx}) }() // nolint: errcheck
 	}
 	return &ctypes.ResultBroadcastTx{Code: c.Code, Data: c.Data, Log: c.Log, Hash: tx.Hash()}, nil
 }
@@ -84,7 +76,7 @@ type ABCIMock struct {
 	Broadcast       Call
 }
 
-func (m ABCIMock) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error) {
+func (m ABCIMock) ABCIInfo() (*ctypes.ResultABCIInfo, error) {
 	res, err := m.Info.GetResponse(nil)
 	if err != nil {
 		return nil, err
@@ -92,11 +84,11 @@ func (m ABCIMock) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error) 
 	return &ctypes.ResultABCIInfo{Response: res.(abci.ResponseInfo)}, nil
 }
 
-func (m ABCIMock) ABCIQuery(ctx context.Context, path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
-	return m.ABCIQueryWithOptions(ctx, path, data, client.DefaultABCIQueryOptions)
+func (m ABCIMock) ABCIQuery(path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
+	return m.ABCIQueryWithOptions(path, data, client.DefaultABCIQueryOptions)
 }
 
-func (m ABCIMock) ABCIQueryWithOptions(ctx context.Context, path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
+func (m ABCIMock) ABCIQueryWithOptions(path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
 	res, err := m.Query.GetResponse(QueryArgs{path, data, opts.Height, opts.Prove})
 	if err != nil {
 		return nil, err
@@ -105,11 +97,11 @@ func (m ABCIMock) ABCIQueryWithOptions(ctx context.Context, path string, data li
 	return &ctypes.ResultABCIQuery{Response: resQuery}, nil
 }
 
-func (m ABCIMock) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTxCommit, error) {
-	return &ctypes.ResultBroadcastTxCommit{}, nil
+func (m ABCIMock) BroadcastTxCommit(tx types.Tx) (*rpc.ResultBroadcastTxCommit, error) {
+	return &rpc.ResultBroadcastTxCommit{}, nil
 }
 
-func (m ABCIMock) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+func (m ABCIMock) BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
 	res, err := m.Broadcast.GetResponse(tx)
 	if err != nil {
 		return nil, err
@@ -117,7 +109,7 @@ func (m ABCIMock) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*ctypes.Re
 	return res.(*ctypes.ResultBroadcastTx), nil
 }
 
-func (m ABCIMock) BroadcastTxSync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+func (m ABCIMock) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
 	res, err := m.Broadcast.GetResponse(tx)
 	if err != nil {
 		return nil, err
@@ -150,8 +142,8 @@ func (r *ABCIRecorder) addCall(call Call) {
 	r.Calls = append(r.Calls, call)
 }
 
-func (r *ABCIRecorder) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error) {
-	res, err := r.Client.ABCIInfo(ctx)
+func (r *ABCIRecorder) ABCIInfo() (*ctypes.ResultABCIInfo, error) {
+	res, err := r.Client.ABCIInfo()
 	r.addCall(Call{
 		Name:     "abci_info",
 		Response: res,
@@ -160,12 +152,12 @@ func (r *ABCIRecorder) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, er
 	return res, err
 }
 
-func (r *ABCIRecorder) ABCIQuery(ctx context.Context, path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
-	return r.ABCIQueryWithOptions(ctx, path, data, client.DefaultABCIQueryOptions)
+func (r *ABCIRecorder) ABCIQuery(path string, data libbytes.HexBytes) (*ctypes.ResultABCIQuery, error) {
+	return r.ABCIQueryWithOptions(path, data, client.DefaultABCIQueryOptions)
 }
 
-func (r *ABCIRecorder) ABCIQueryWithOptions(ctx context.Context, path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
-	res, err := r.Client.ABCIQueryWithOptions(ctx, path, data, opts)
+func (r *ABCIRecorder) ABCIQueryWithOptions(path string, data libbytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
+	res, err := r.Client.ABCIQueryWithOptions(path, data, opts)
 	r.addCall(Call{
 		Name:     "abci_query",
 		Args:     QueryArgs{path, data, opts.Height, opts.Prove},
@@ -175,12 +167,12 @@ func (r *ABCIRecorder) ABCIQueryWithOptions(ctx context.Context, path string, da
 	return res, err
 }
 
-func (r *ABCIRecorder) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTxCommit, error) {
-	return &ctypes.ResultBroadcastTxCommit{}, nil
+func (r *ABCIRecorder) BroadcastTxCommit(tx types.Tx) (*rpc.ResultBroadcastTxCommit, error) {
+	return &rpc.ResultBroadcastTxCommit{}, nil
 }
 
-func (r *ABCIRecorder) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	res, err := r.Client.BroadcastTxAsync(ctx, tx)
+func (r *ABCIRecorder) BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+	res, err := r.Client.BroadcastTxAsync(tx)
 	r.addCall(Call{
 		Name:     "broadcast_tx_async",
 		Args:     tx,
@@ -190,8 +182,8 @@ func (r *ABCIRecorder) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*ctyp
 	return res, err
 }
 
-func (r *ABCIRecorder) BroadcastTxSync(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	res, err := r.Client.BroadcastTxSync(ctx, tx)
+func (r *ABCIRecorder) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+	res, err := r.Client.BroadcastTxSync(tx)
 	r.addCall(Call{
 		Name:     "broadcast_tx_sync",
 		Args:     tx,

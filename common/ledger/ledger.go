@@ -1,3 +1,5 @@
+// +build cgo,ledger
+
 package ledger
 
 import (
